@@ -1,5 +1,21 @@
 import { api } from "./api";
 
+export async function logOutRequest(email) {
+  try {
+    const { data } = await api.post("/logout", { email });
+    return {
+      data,
+      success: true,
+    };
+  } catch (error) {
+    console.error(error.response.data.message);
+    return {
+      error: error.response.data.message,
+      success: false,
+    };
+  }
+}
+
 export async function signInRequest(email, password) {
   try {
     const { data } = await api.post("/sign-in", {

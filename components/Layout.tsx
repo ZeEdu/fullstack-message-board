@@ -1,9 +1,16 @@
 import Head from "next/head";
-import React from "react";
+import React, { FC } from "react";
 import MenuAppBar from "./MenuAppBar";
 import PropTypes from "prop-types";
+import Footer from "./Footer";
 
-const Layout = ({ children, title, description }) => {
+interface LayoutProps {
+  children: React.ReactNode;
+  title: string;
+  description: string;
+}
+
+const Layout: FC<LayoutProps> = ({ children, title, description }) => {
   return (
     <>
       <Head>
@@ -13,14 +20,9 @@ const Layout = ({ children, title, description }) => {
       </Head>
       <MenuAppBar title={title} />
       {children}
+      <Footer />
     </>
   );
-};
-
-Layout.propType = {
-  title: PropTypes.string,
-  description: PropTypes.string,
-  children: PropTypes.element,
 };
 
 export default Layout;

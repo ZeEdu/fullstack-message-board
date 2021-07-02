@@ -27,6 +27,9 @@ export default async function handler(req, res) {
       });
     }
 
+    // Checar a validade do toke
+    // Caso seja invalido, envia-se um novo
+
     const user = await usersColletion.findOne(
       { email: session.user_id },
       {
