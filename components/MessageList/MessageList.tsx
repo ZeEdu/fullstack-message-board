@@ -1,5 +1,5 @@
 import React from "react";
-import { Message } from "../../interfaces/Post.interface";
+import { Message } from "../../interfaces/Message.interface";
 
 import MessageListItem from "./MessageListItem";
 import styled from "styled-components";
@@ -23,7 +23,7 @@ interface MessageListProps {
 }
 
 const MessageList: React.FC<MessageListProps> = ({ posts, user, isAuth }) => {
-  if (posts.length === 0) {
+  if (!posts || posts.length === 0) {
     return (
       <Wrapper>
         <Text>Nothing more to load</Text>

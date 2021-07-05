@@ -3,7 +3,7 @@ import React, { FC, useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import { AuthContext } from "../contexts/AuthContext";
-import { Message } from "../interfaces/Post.interface";
+import { Message } from "../interfaces/Message.interface";
 import { api } from "../services/api";
 import Button from "./Button";
 

@@ -1,20 +1,23 @@
-import { MongoClient, ObjectId } from "mongodb";
-import { GetServerSideProps, GetStaticPaths, GetStaticProps } from "next";
-import { useRouter } from "next/router";
+import { ObjectId } from "mongodb";
+import { GetServerSideProps } from "next";
 import React, { FC } from "react";
-import { getUserData, getUserMessages } from "../../dao";
+
 import Container from "../../components/Container";
 import Layout from "../../components/Layout";
 import MessageList from "../../components/MessageList";
-import { FindUser } from "../../interfaces/FindUser.interface";
-import { Message } from "../../interfaces/Post.interface";
+import { User } from "../../interfaces/User.interface";
+import { Message } from "../../interfaces/Message.interface";
+import { getUser } from "../../dao/users";
+import { getUserMessages } from "../../dao/messages";
 
 interface AccountProps {
-  user: FindUser;
+  user: User;
   messages: Message[];
 }
 
 const Account: FC<AccountProps> = ({ user, messages }) => {
+  // console.log(messages);
+
   return (
     <Layout title="User Page" description="See this users messages">
       <Container>
@@ -27,11 +30,13 @@ const Account: FC<AccountProps> = ({ user, messages }) => {
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const id = context.params["id"];
   try {
-    const { _id, email, username } = await getUserData(
+    const { _id, email, username }: User = await getUser(
       "_id",
       new ObjectId(id.toString())
     );
-    const messages = await getUserMessages("user_id", id.toString());
+
+    const messages: Message[] = await getUserMessages("user_id", id.toString());
+
     return {
       props: {
         user: { _id: _id.toString(), username: username, email: email },

@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
-import { MongoClient } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Message } from "../../../../interfaces/Post.interface";
+import { getMessage, updateMessage } from "../../../../dao/messages";
+import { Message } from "../../../../interfaces/Message.interface";
 
 export default async function handler(
   req: NextApiRequest,
@@ -27,38 +27,29 @@ export default async function handler(
   const token = authorization.split("Bearer ")[1];
 
   try {
-    const client = await MongoClient.connect(
-      "mongodb+srv://eduardo:eduardo@cluster0.m0kue.mongodb.net/messageboard?retryWrites=true&w=majority"
-    );
-
-    const db = client.db();
-    const postsColletion = db.collection("posts");
-
     // TODO: Validar a sessão
 
-    const post: Message = await postsColletion.findOne({
-      _id: new ObjectId(post_id),
-    });
-
-    // Já existe dentro?
-    const checkInside = post.likes.includes(user_id);
+    // const post: Message = await postsColletion.findOne({
+    //   _id: new ObjectId(post_id),
+    // });
+    const message: Message = await getMessage("_id", new ObjectId(post_id));
+    const checkInside = message.likes.includes(user_id);
     if (checkInside) {
       return res.status(400).json({ message: "User already liked post" });
     }
-    // Inserir o id do usuário dentro de likes
-    const updatedPost = post;
-    updatedPost.likes.push(user_id);
-    updatedPost.likeCount = post.likeCount + 1;
-    updatedPost.updatedAt = new Date().toISOString();
-
-    await postsColletion.updateOne(
-      { _id: new ObjectId(post_id) },
-      { $set: updatedPost }
+    const updatedMessage = message;
+    updatedMessage.likes.push(user_id);
+    updatedMessage.likeCount = message.likeCount + 1;
+    updatedMessage.updatedAt = new Date().toISOString();
+    const updateResult = await updateMessage(
+      "_id",
+      new ObjectId(post_id),
+      updatedMessage
     );
-
-    client.close();
-
-    return res.status(200).json({ result: updatedPost });
+    if (!updateResult.success) {
+      return res.status(500).json({ message: "Internal Error" });
+    }
+    return res.status(200).json({ result: updatedMessage });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ type: "error", message: error });

@@ -1,7 +1,13 @@
-import { MongoClient } from "mongodb";
 import Jwt from "jsonwebtoken";
+import { User } from "../../interfaces/User.interface";
+import { getUserWithPassword } from "../../dao/users";
+import { createSession, deleteSession, getSession } from "../../dao/session";
+import { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const { method } = req;
 
   if (method !== "POST") {
@@ -19,14 +25,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const client = await MongoClient.connect(
-      "mongodb+srv://eduardo:eduardo@cluster0.m0kue.mongodb.net/messageboard?retryWrites=true&w=majority"
-    );
-
-    const db = client.db();
-    const usersColletion = db.collection("users");
-
-    const user = await usersColletion.findOne({ email: email });
+    const user: User = await getUserWithPassword("email", email);
 
     if (!user) {
       return res.status(400).json({
@@ -34,6 +33,8 @@ export default async function handler(req, res) {
         message: "Email not found",
       });
     }
+    console.log("password", password);
+    console.log("user.password", user.password);
 
     if (password !== user.password) {
       return res.status(400).json({
@@ -42,9 +43,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const sessionsColletion = db.collection("sessions");
-
-    const checkSession = await sessionsColletion.findOne({ user_id: email });
+    const checkSession = await getSession("email", email);
 
     if (!checkSession) {
       const id = user._id.toString();
@@ -53,19 +52,14 @@ export default async function handler(req, res) {
         expiresIn: maxAge,
       });
 
-      const createdSession = await sessionsColletion.insertOne({
-        user_id: user.email,
-        token,
-      });
+      const createdSession = await createSession(user.email, token);
 
-      if (!createdSession) {
+      if (!createdSession.success) {
         return res.status(500).json({
           type: "error",
           message: "Faild to create user session",
         });
       }
-
-      client.close();
 
       return res.status(202).json({
         user: user,
@@ -81,9 +75,7 @@ export default async function handler(req, res) {
       });
     } catch (err) {
       // Delete invalid session
-      await sessionsColletion.deleteOne({
-        user_id: user.email,
-      });
+      await deleteSession("email", user.email);
 
       const id = user._id.toString();
       const maxAge = 60 * 60 * 1;
@@ -91,10 +83,7 @@ export default async function handler(req, res) {
         expiresIn: maxAge,
       });
 
-      const createdSession = await sessionsColletion.insertOne({
-        user_id: user.email,
-        token,
-      });
+      const createdSession = await createSession(user.email, token);
 
       if (!createdSession) {
         return res.status(500).json({
@@ -102,8 +91,6 @@ export default async function handler(req, res) {
           message: "Faild to create user session",
         });
       }
-
-      client.close();
 
       return res.status(202).json({
         user: user,

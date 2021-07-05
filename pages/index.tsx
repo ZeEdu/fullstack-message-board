@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { FC, useContext, useState } from "react";
 
 import { AuthContext } from "../contexts/AuthContext";
 import { api } from "../services/api";
@@ -9,7 +9,14 @@ import PageTitle from "../components/PageTitle";
 import { GetStaticProps } from "next";
 import Container from "../components/Container";
 
-export default function Home({ posts }) {
+import { Message } from "../interfaces/Message.interface";
+import { getAllMessages } from "../dao/messages";
+
+interface HomeProps {
+  messages: Message[];
+}
+
+const Home: FC<HomeProps> = ({ messages }) => {
   const { isAuthenticated, user } = useContext(AuthContext);
 
   return (
@@ -18,22 +25,44 @@ export default function Home({ posts }) {
         {isAuthenticated && <MessageForm />}
         <PageTitle title="Recent Messages" />
         <MessageList
-          initialMessages={posts}
+          initialMessages={messages}
           user={user}
           isAuth={isAuthenticated}
         />
       </Container>
     </Layout>
   );
-}
+};
 
 export const getServerSideProps: GetStaticProps = async (ctx) => {
   try {
-    const {
-      data: { result: posts },
-    } = await api.get(`/posts/?id=&page=0`);
+    const messages = await getAllMessages();
     return {
-      props: { posts },
+      props: {
+        messages: messages.map(
+          ({
+            _id,
+            email,
+            username,
+            user_id,
+            message,
+            likeCount,
+            likes,
+            createdAt,
+            updatedAt,
+          }) => ({
+            _id: _id.toString(),
+            email: email,
+            username: username,
+            user_id: user_id,
+            message: message,
+            likeCount: likeCount,
+            likes: likes,
+            createdAt: createdAt ? createdAt.toString() : "",
+            updatedAt: updatedAt ? updatedAt.toString() : "",
+          })
+        ),
+      },
     };
   } catch (error) {
     console.error(error);
@@ -42,3 +71,5 @@ export const getServerSideProps: GetStaticProps = async (ctx) => {
     };
   }
 };
+
+export default Home;

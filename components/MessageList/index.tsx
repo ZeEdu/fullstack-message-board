@@ -1,13 +1,13 @@
 import React, { FC, useState } from "react";
-import { FindUser } from "../../interfaces/FindUser.interface";
-import { Message } from "../../interfaces/Post.interface";
+import { User } from "../../interfaces/User.interface";
+import { Message } from "../../interfaces/Message.interface";
 import { api } from "../../services/api";
 import Button from "../Button";
 import MessageList from "./MessageList";
 import MessageListFinish from "./MessageListFinish";
 
 interface MessageListProps {
-  user?: FindUser;
+  user?: User;
   initialMessages: Message[];
   isAuth?: boolean;
 }
@@ -42,7 +42,7 @@ const Index: FC<MessageListProps> = ({ user, initialMessages, isAuth }) => {
   return (
     <>
       <MessageList posts={pagePosts} user={user} isAuth={isAuth} />
-      {pagePosts.length >= 10 && !end && (
+      {pagePosts && pagePosts.length >= 10 && !end && (
         <Button
           type="button"
           value={loading ? "Loading more messages" : "Load More"}

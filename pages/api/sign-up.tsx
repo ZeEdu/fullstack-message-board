@@ -1,6 +1,12 @@
-import { MongoClient } from "mongodb";
+import { ObjectId } from "mongodb";
+import { NextApiRequest, NextApiResponse } from "next";
+import { getUser, saveUser } from "../../dao/users";
+import { User } from "../../interfaces/User.interface";
 
-export default async function handler(req, res) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const { method } = req;
 
   if (method !== "POST") {
@@ -68,68 +74,46 @@ export default async function handler(req, res) {
   }
 
   try {
-    const client = await MongoClient.connect(
-      "mongodb+srv://eduardo:eduardo@cluster0.m0kue.mongodb.net/messageboard?retryWrites=true&w=majority"
-    );
-
-    const db = client.db();
-    const usersColletion = db.collection("users");
-
-    const emailStm = await usersColletion.findOne({ email: email });
-
+    const emailStm = await getUser("email", email);
     if (emailStm) {
       res.status(400).json({
         type: "error",
         message: "Email already exist",
       });
     }
-
-    const usernameStm = await usersColletion.findOne({ username: username });
-
+    const usernameStm = await getUser("username", username);
     if (usernameStm) {
       res.status(400).json({
         type: "error",
         message: "Username already exist",
       });
     }
-
-    const user = await usersColletion.insertOne({
+    const insertedUser = await saveUser({
       username,
       email,
       password,
     });
-
-    if (!user) {
+    if (!insertedUser.success) {
       res
         .status(500)
         .json({ type: "error", message: "Internal Error. Try againg later" });
     }
-
-    const emailCheckStm = await usersColletion.findOne({ email: email });
-    const usernameCheckStm = await usersColletion.findOne({
-      username: username,
-    });
-
-    if (!emailCheckStm || !usernameCheckStm) {
+    const emailCheckStm: User = await getUser("email", email);
+    const usernameCheckStm: User = await getUser("username", username);
+    if (emailCheckStm._id.toString() === usernameCheckStm._id.toString()) {
       res
         .status(500)
         .json({ type: "error", message: "Internal Error. Try againg later" });
     }
-
-    const findUser = await usersColletion.findOne({
-      username: username,
-      email: email,
-      password: password,
-    });
-
+    const findUser: User = await getUser(
+      "_id",
+      new ObjectId(emailCheckStm._id)
+    );
     if (!findUser) {
       res
         .status(500)
         .json({ type: "error", message: "Internal Error. Try againg later" });
     }
-
-    client.close();
-
     res.status(202).json({
       user: findUser,
     });

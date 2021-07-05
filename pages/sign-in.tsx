@@ -9,7 +9,6 @@ import { AuthContext } from "../contexts/AuthContext";
 import styled from "styled-components";
 import Button from "../components/Button";
 import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
 
 type FormValuesType = {
   email: string;
@@ -29,7 +28,6 @@ const ButtonHolder = styled.div`
 
 const SignIn = () => {
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   const {
     register,
@@ -46,8 +44,9 @@ const SignIn = () => {
 
     try {
       await signIn(email, password);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
+      console.log("Somthing went wrong");
       setError("Something Went Wrong");
     }
   };

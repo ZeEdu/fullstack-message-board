@@ -4,7 +4,7 @@ import moment from "moment";
 
 import { useState } from "react";
 import styled from "styled-components";
-import { Message } from "../../interfaces/Post.interface";
+import { Message } from "../../interfaces/Message.interface";
 import { api } from "../../services/api";
 import Anchor from "../Anchor";
 
