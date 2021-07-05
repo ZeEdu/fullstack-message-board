@@ -39,15 +39,16 @@ const SignIn = () => {
 
   const onSubmit = async (formValues: FormValuesType) => {
     const { email, password } = formValues;
-
     setError("");
-
     try {
-      await signIn(email, password);
+      const res = await signIn(email, password);
+      if (res.success === false) {
+        console.log(res);
+        setError(res.error.response.data.message);
+      }
     } catch (err) {
-      console.log(err);
-      console.log("Somthing went wrong");
-      setError("Something Went Wrong");
+      console.error(err);
+      setError(err);
     }
   };
 

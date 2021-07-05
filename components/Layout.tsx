@@ -1,8 +1,17 @@
 import Head from "next/head";
 import React, { FC } from "react";
 import MenuAppBar from "./MenuAppBar";
-import PropTypes from "prop-types";
 import Footer from "./Footer";
+import styled from "styled-components";
+
+const View = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Body = styled.div`
+  min-height: 100vh;
+`;
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -18,9 +27,11 @@ const Layout: FC<LayoutProps> = ({ children, title, description }) => {
         <meta name="description" content={description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <MenuAppBar title={title} />
-      {children}
-      <Footer />
+      <View>
+        <MenuAppBar title={title} />
+        <Body>{children}</Body>
+        <Footer />
+      </View>
     </>
   );
 };

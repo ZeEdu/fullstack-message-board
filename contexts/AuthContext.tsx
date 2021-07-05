@@ -55,9 +55,6 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const { ["messageboard.token"]: token } = parseCookies();
-
-    // Mensagem sobre cookies
-
     if (token) {
       recoverUserInformation().then(({ user, success }) => {
         if (success === true) {
@@ -68,15 +65,26 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function signUp(username: string, email: string, password: string) {
-    return await signUpRequest(username, email, password);
+    try {
+      const res = await api.post("/sign-up", {
+        username: username,
+        email: email,
+        password: password,
+      });
+      return { data: res.data, success: true };
+    } catch (error) {
+      return {
+        error,
+        success: false,
+      };
+    }
   }
 
   async function logOut() {
     try {
       if (!isAuthenticated) return;
-      const logOutResponse = await logOutRequest(user.email);
-      if (!logOutResponse.success) return;
-
+      const { data } = await api.post("/logout", { email: user.email });
+      if (data.type !== "success") return;
       destroyCookie(null, "messageboard.token");
       setUser(null);
       api.defaults.headers["Authorization"] = null;
@@ -95,20 +103,19 @@ export function AuthProvider({ children }) {
 
   async function signIn(email: string, password: string) {
     try {
-      const signResponse = await signInRequest(email, password);
-      if (signResponse.success === true) {
-        setCookie(null, "messageboard.token", signResponse.data.token, {
-          maxAge: 60 * 60 * 1,
-          path: "/",
-        });
-        api.defaults.headers[
-          "Authorization"
-        ] = `Bearer ${signResponse.data.token}`;
-        setUser(signResponse.data.user);
-        router.push("/profile");
-        return { success: true, error: signResponse.error };
-      }
-      return { success: false };
+      const { data } = await api.post("/sign-in", {
+        email: email,
+        password: password,
+      });
+
+      setCookie(null, "messageboard.token", data.token, {
+        maxAge: 60 * 60 * 1,
+        path: "/",
+      });
+      api.defaults.headers["Authorization"] = `Bearer ${data.token}`;
+      setUser(data.user);
+      router.push("/profile");
+      return { success: true };
     } catch (error) {
       console.error(error);
       return { error, success: false };

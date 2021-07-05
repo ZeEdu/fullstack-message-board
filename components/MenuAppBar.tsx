@@ -29,6 +29,10 @@ const Title = styled.h1`
 const MenuAppBar: FC<MenuAppBarProps> = ({ title }) => {
   const { user, logOut } = useContext(AuthContext);
 
+  const handleClick = async () => {
+    await logOut();
+  };
+
   return (
     <Header>
       <Container>
@@ -45,7 +49,7 @@ const MenuAppBar: FC<MenuAppBarProps> = ({ title }) => {
               <>
                 <NavLink href="/" name="Home" />
                 <NavLink href="/profile" name="Profile" />
-                <StyledNavButton value="Log Out" onClick={logOut} />
+                <StyledNavButton value="Log Out" onClick={handleClick} />
               </>
             ) : (
               <>

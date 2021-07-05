@@ -67,7 +67,12 @@ const StyledInput = styled.input`
     box-shadow: 0 0 0 3px #88c0d0;
   }
 `;
-const ErrorMessage = styled.p``;
+const ErrorMessage = styled.p`
+  margin-top: 0.5rem;
+  font-family: "Roboto", sans-serif;
+  font-size: 1rem;
+  color: #bf616a;
+`;
 
 const Input: FC<InputProps> = ({ label, type, name, register, errors }) => {
   return (

@@ -1,6 +1,6 @@
 import { api } from "./api";
 
-export async function logOutRequest(email) {
+export async function logOutRequest(email: string) {
   try {
     const { data } = await api.post("/logout", { email });
     return {
@@ -16,7 +16,7 @@ export async function logOutRequest(email) {
   }
 }
 
-export async function signInRequest(email, password) {
+export async function signInRequest(email: string, password: string) {
   try {
     const { data } = await api.post("/sign-in", {
       email: email,
@@ -32,21 +32,11 @@ export async function signInRequest(email, password) {
   }
 }
 
-export async function signUpRequest(username, email, password) {
-  try {
-    const res = await api.post("/sign-up", {
-      username: username,
-      email: email,
-      password: password,
-    });
-    return { data: res.data, success: true };
-  } catch (error) {
-    return {
-      error,
-      success: false,
-    };
-  }
-}
+export async function signUpRequest(
+  username: string,
+  email: string,
+  password: string
+) {}
 
 export async function recoverUserInformation() {
   try {
