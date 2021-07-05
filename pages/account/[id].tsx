@@ -16,10 +16,8 @@ interface AccountProps {
 }
 
 const Account: FC<AccountProps> = ({ user, messages }) => {
-  // console.log(messages);
-
   return (
-    <Layout title="User Page" description="See this users messages">
+    <Layout title={"User Page"} description="See user messages">
       <Container>
         <MessageList initialMessages={messages} user={user} />
       </Container>
