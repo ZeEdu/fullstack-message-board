@@ -42,12 +42,11 @@ const SignIn = () => {
     setError("");
     try {
       const res = await signIn(email, password);
-      if (res.success === false) {
-        console.log(res);
-        setError(res.error.response.data.message);
-      }
+      // if (res.success === false) {
+      //   setError(res.error.response.data.message);
+      // }
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       setError(err);
     }
   };

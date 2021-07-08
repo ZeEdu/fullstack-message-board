@@ -18,7 +18,7 @@ export async function saveMessage(message: Message) {
     await db.collection("posts").insertOne(message);
     return { success: true };
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     return { success: false };
   }
 }
@@ -49,7 +49,7 @@ export async function updateMessage(field: string, value: any, body: any) {
     await db.collection("posts").updateOne(query, { $set: body });
     return { success: true };
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return { success: false };
   }
 }

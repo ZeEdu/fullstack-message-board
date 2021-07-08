@@ -5,7 +5,7 @@ export async function validateToken(token: string) {
     Jwt.verify(token, "myLittleSecret");
     return { success: true };
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     return { success: false };
   }
 }

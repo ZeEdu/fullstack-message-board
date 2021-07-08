@@ -54,7 +54,7 @@ export default async function handler(
       .status(200)
       .json({ type: "success", message: "deleted user session" });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return res.status(500).json({ type: "error", message: "Internal Error" });
   }
 }

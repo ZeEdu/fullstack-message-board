@@ -8,7 +8,7 @@ export async function deleteSession(field: "email" | "token", value: string) {
     await db.collection("session").deleteOne(query);
     return { success: true };
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return { success: false };
   }
 }
@@ -25,7 +25,7 @@ export async function createSession(email: string, token: string) {
     await db.collection("session").insertOne({ email, token });
     return { success: true };
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return { success: false };
   }
 }

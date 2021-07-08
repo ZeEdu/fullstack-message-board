@@ -33,8 +33,6 @@ export default async function handler(
         message: "Email not found",
       });
     }
-    console.log("password", password);
-    console.log("user.password", user.password);
 
     if (password !== user.password) {
       return res.status(400).json({
@@ -98,7 +96,7 @@ export default async function handler(
       });
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ type: "error", message: "Internal Error" });
   }
 }

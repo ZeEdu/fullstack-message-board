@@ -8,7 +8,7 @@ export async function logOutRequest(email: string) {
       success: true,
     };
   } catch (error) {
-    console.error(error.response.data.message);
+    // console.error(error.response.data.message);
     return {
       error: error.response.data.message,
       success: false,

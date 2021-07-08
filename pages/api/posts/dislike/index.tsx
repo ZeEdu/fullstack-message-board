@@ -20,8 +20,6 @@ export default async function handler(
   const { authorization } = req.headers;
 
   if (!user_id || !post_id || !authorization) {
-    console.log(user_id, post_id, authorization);
-
     return res.status(400).json({
       type: "error",
       message: "Request malformed",
@@ -61,7 +59,7 @@ export default async function handler(
     }
     return res.status(200).json({ result: updatedMessage });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return res.status(500).json({ type: "error", message: error });
   }
 }

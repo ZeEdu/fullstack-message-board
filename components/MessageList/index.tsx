@@ -33,7 +33,7 @@ const Index: FC<MessageListProps> = ({ user, initialMessages, isAuth }) => {
       }
       page = page + 1;
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     } finally {
       setLoading(false);
     }

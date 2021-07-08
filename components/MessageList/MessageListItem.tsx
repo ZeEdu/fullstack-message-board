@@ -88,7 +88,7 @@ const MessageListItem: FC<MessageListItemProps> = ({ post, user, isAuth }) => {
       const { data } = await api.put("/posts/dislike", body);
       setLocalPost(data.result);
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     }
   };
 
@@ -104,7 +104,7 @@ const MessageListItem: FC<MessageListItemProps> = ({ post, user, isAuth }) => {
       const { data } = await api.put("/posts/like", body);
       setLocalPost(data.result);
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     }
   };
 

@@ -46,7 +46,7 @@ const SignUpPage = () => {
       await signIn(email, password);
     } catch (error) {
       setReqError("Something went Wrong. Please try again later");
-      console.error(error);
+      // console.error(error);
     }
   };
 

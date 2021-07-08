@@ -8,7 +8,7 @@ export async function saveUser(user: User) {
     await db.collection("users").insertOne(user);
     return { success: true };
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return { success: false };
   }
 }

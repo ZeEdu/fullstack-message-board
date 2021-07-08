@@ -93,7 +93,7 @@ export function AuthProvider({ children }) {
         success: true,
       };
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       return {
         error,
         success: false,
@@ -117,7 +117,7 @@ export function AuthProvider({ children }) {
       router.push("/profile");
       return { success: true };
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       return { error, success: false };
     }
   }

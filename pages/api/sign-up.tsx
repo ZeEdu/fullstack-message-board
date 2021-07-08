@@ -119,6 +119,6 @@ export default async function handler(
     });
   } catch (error) {
     res.status(500).json({ type: "error", message: error });
-    console.error(error);
+    // console.error(error);
   }
 }
