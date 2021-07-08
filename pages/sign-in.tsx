@@ -41,7 +41,7 @@ const SignIn = () => {
     const { email, password } = formValues;
     setError("");
     try {
-      const res = await signIn(email, password);
+      await signIn(email, password);
       // if (res.success === false) {
       //   setError(res.error.response.data.message);
       // }
