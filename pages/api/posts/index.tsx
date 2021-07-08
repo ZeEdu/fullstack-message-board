@@ -14,11 +14,16 @@ import { getUser } from "../../../dao/users";
 import { Message } from "../../../interfaces/Message.interface";
 import { User } from "../../../interfaces/User.interface";
 import { validateToken } from "../../../utils/Token";
+import Cors from "cors";
+import initMiddleware from "../../../services/initMiddleware";
+
+const cors = initMiddleware(Cors({ methods: ["GET", "POST"] }));
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  await cors(req, res);
   const { method } = req;
 
   switch (method) {

@@ -4,10 +4,17 @@ import { getMessage, updateMessage } from "../../../../dao/messages";
 
 import { Message } from "../../../../interfaces/Message.interface";
 
+import Cors from "cors";
+import initMiddleware from "../../../../services/initMiddleware";
+
+const cors = initMiddleware(Cors({ methods: ["PUT"] }));
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  await cors(req, res);
+
   const { method } = req;
 
   if (method !== "PUT") {

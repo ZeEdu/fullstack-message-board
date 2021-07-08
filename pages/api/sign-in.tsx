@@ -3,11 +3,17 @@ import { User } from "../../interfaces/User.interface";
 import { getUserWithPassword } from "../../dao/users";
 import { createSession, deleteSession, getSession } from "../../dao/session";
 import { NextApiRequest, NextApiResponse } from "next";
+import initMiddleware from "../../services/initMiddleware.js";
+import Cors from "cors";
+
+const cors = initMiddleware(Cors({ methods: ["POST"] }));
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  await cors(req, res);
+
   const { method } = req;
 
   if (method !== "POST") {

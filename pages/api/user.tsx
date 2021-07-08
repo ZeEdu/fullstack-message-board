@@ -3,11 +3,17 @@ import { Session } from "../../interfaces/Session.interface";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "../../dao/session";
 import { getUser } from "../../dao/users";
+import initMiddleware from "../../services/initMiddleware.js";
+import Cors from "cors";
+
+const cors = initMiddleware(Cors({ methods: ["GET"] }));
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  await cors(req, res);
+
   try {
     const token = req.headers.authorization.split("Bearer ")[1];
     if (!token) {
