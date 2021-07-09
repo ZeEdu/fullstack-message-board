@@ -1,10 +1,4 @@
 import { createContext, useEffect, useState } from "react";
-import {
-  logOutRequest,
-  recoverUserInformation,
-  signInRequest,
-  signUpRequest,
-} from "../services/auth";
 import { destroyCookie, parseCookies, setCookie } from "nookies";
 import { useRouter } from "next/router";
 import { api } from "../services/api";
@@ -19,8 +13,9 @@ type signInType = (
   email: string,
   password: string
 ) => Promise<{
-  success: boolean;
-  error?: any;
+  data: any | null;
+  success: true | false;
+  error: any | null;
 }>;
 
 type signUpType = (
@@ -28,14 +23,15 @@ type signUpType = (
   email: string,
   password: string
 ) => Promise<{
-  data?: any;
-  success: boolean;
-  error?: any;
+  data: any | null;
+  success: true | false;
+  error: any | null;
 }>;
 
 type logOutType = () => Promise<{
-  success: boolean;
-  error?: any;
+  data: any | null;
+  success: true | false;
+  error: any | null;
 }>;
 
 type AuthContextType = {
@@ -54,72 +50,93 @@ export function AuthProvider({ children }) {
   const isAuthenticated = !!user;
 
   useEffect(() => {
-    const { ["messageboard.token"]: token } = parseCookies();
-    if (token) {
-      recoverUserInformation().then(({ user, success }) => {
-        if (success === true) {
-          setUser(user);
-        }
-      });
-    }
+    const fetchUser = async () => {
+      const { ["messageboard.token"]: token } = parseCookies();
+      if (!token) return;
+      try {
+        const { data } = await api.get("/user");
+        console.log(data);
+
+        setUser(data.data.user as User);
+      } catch (error) {
+        // console.log("No user found");
+      }
+    };
+    fetchUser();
   }, []);
 
-  async function signUp(username: string, email: string, password: string) {
+  async function signIn(email: string, password: string) {
+    let data: any | null = null;
+    let success: true | false = false;
+    let error: any | null = null;
+
     try {
-      const res = await api.post("/sign-up", {
+      const { data: response } = await api.post("/sign-in", {
+        email: email,
+        password: password,
+      });
+
+      setCookie(null, "messageboard.token", response.data.token, {
+        maxAge: 60 * 60 * 1,
+        path: "/",
+      });
+      api.defaults.headers["Authorization"] = `Bearer ${response.data.token}`;
+      setUser(response.data.user);
+      router.push("/profile");
+      data = response.data;
+      success = true;
+    } catch (err) {
+      // console.error(error);
+      error = err;
+      success = false;
+    }
+    return { data, success, error };
+  }
+
+  async function signUp(username: string, email: string, password: string) {
+    let data: any | null = null;
+    let success: true | false = false;
+    let error: any | null = null;
+
+    try {
+      const { data: response } = await api.post("/sign-up", {
         username: username,
         email: email,
         password: password,
       });
-      return { data: res.data, success: true };
-    } catch (error) {
-      return {
-        error,
-        success: false,
-      };
+      data = response.data;
+      success = true;
+    } catch (err) {
+      error = err;
+      success = false;
     }
+    return { data, success, error };
   }
 
   async function logOut() {
+    let data: any | null = null;
+    let success: true | false = false;
+    let error: any | null = null;
+
     try {
       if (!isAuthenticated) return;
-      const { data } = await api.post("/logout", { email: user.email });
-      if (data.type !== "success") return;
+      const { data: response } = await api.post("/logout", {
+        email: user.email,
+      });
+      if (response.meta.type !== "success") return;
       destroyCookie(null, "messageboard.token");
       setUser(null);
       api.defaults.headers["Authorization"] = null;
       router.push("/");
-      return {
-        success: true,
-      };
-    } catch (error) {
+      data = response.data;
+      success = true;
+    } catch (err) {
       // console.error(error);
-      return {
-        error,
-        success: false,
-      };
+      error = err;
+      success = false;
     }
-  }
 
-  async function signIn(email: string, password: string) {
-    try {
-      const { data } = await api.post("/sign-in", {
-        email: email,
-        password: password,
-      });
-
-      setCookie(null, "messageboard.token", data.token, {
-        maxAge: 60 * 60 * 1,
-        path: "/",
-      });
-      api.defaults.headers["Authorization"] = `Bearer ${data.token}`;
-      setUser(data.user);
-      router.push("/profile");
-      return { success: true };
-    } catch (error) {
-      // console.error(error);
-      return { error, success: false };
-    }
+    return { data, success, error };
   }
 
   return (
