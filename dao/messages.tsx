@@ -1,11 +1,12 @@
 import { Db } from "mongodb";
 import { Message } from "../interfaces/Message.interface";
+import Collections from "../utils/Collections";
 import { connectToDatabase } from "../utils/mongodb";
 
 export async function getAllMessages(page = 0): Promise<Message[]> {
   const { db }: { db: Db } = await connectToDatabase();
   return await db
-    .collection("posts")
+    .collection(Collections.posts)
     .find()
     .limit(10)
     .skip(page * 10)
@@ -15,7 +16,7 @@ export async function getAllMessages(page = 0): Promise<Message[]> {
 export async function saveMessage(message: Message) {
   try {
     const { db }: { db: Db } = await connectToDatabase();
-    await db.collection("posts").insertOne(message);
+    await db.collection(Collections.posts).insertOne(message);
     return { success: true };
   } catch (err) {
     // console.error(err);
@@ -31,7 +32,7 @@ export async function getUserMessages(
   const { db }: { db: Db } = await connectToDatabase();
   const filter = { [idField]: value };
   return await db
-    .collection("posts")
+    .collection(Collections.posts)
     .find(filter, { skip: page * 10, limit: 10 })
     .toArray();
 }
@@ -39,14 +40,14 @@ export async function getUserMessages(
 export async function getMessage(field: string, value: any) {
   const query = { [field]: value };
   const { db }: { db: Db } = await connectToDatabase();
-  return await db.collection("posts").findOne(query);
+  return await db.collection(Collections.posts).findOne(query);
 }
 
 export async function updateMessage(field: string, value: any, body: any) {
   const query = { [field]: value };
   try {
     const { db }: { db: Db } = await connectToDatabase();
-    await db.collection("posts").updateOne(query, { $set: body });
+    await db.collection(Collections.posts).updateOne(query, { $set: body });
     return { success: true };
   } catch (error) {
     // console.error(error);
