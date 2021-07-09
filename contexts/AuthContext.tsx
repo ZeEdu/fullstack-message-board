@@ -55,7 +55,6 @@ export function AuthProvider({ children }) {
       if (!token) return;
       try {
         const { data } = await api.get("/user");
-        console.log(data);
 
         setUser(data.data.user as User);
       } catch (error) {
