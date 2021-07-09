@@ -1,32 +1,49 @@
+import { NextApiRequest, NextApiResponse } from "next";
+import NextCors from "nextjs-cors";
+
 import { User } from "../../interfaces/User.interface";
 import { Session } from "../../interfaces/Session.interface";
-import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "../../dao/session";
 import { getUser } from "../../dao/users";
-import initMiddleware from "../../services/initMiddleware.js";
-import Cors from "cors";
-
-const cors = initMiddleware(Cors({ methods: ["GET"] }));
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  await cors(req, res);
+  try {
+    await NextCors(req, res, {
+      // Options
+      methods: ["GET"],
+      origin: "*",
+      optionsSuccessStatus: 200,
+    });
+  } catch (error) {
+    res.status(404).json({
+      meta: { type: "error" },
+      message: "Method Not Allowed",
+    });
+  }
 
   try {
     const token = req.headers.authorization.split("Bearer ")[1];
+
     if (!token) {
       res.status(400).json({
-        type: "error",
+        meta: {
+          type: "error",
+        },
         message: "No token informed in headers",
       });
     }
+    console.log(token);
+
     const session: Session = await getSession("token", token);
     if (!session) {
-      res.status(404).json({
-        type: "error",
-        message: "No open session found",
+      res.status(402).json({
+        meta: {
+          type: "error",
+        },
+        data: { message: "No open session found" },
       });
     }
     // Checar a validade do token
@@ -34,12 +51,28 @@ export default async function handler(
     const user: User = await getUser("email", session.email);
     if (!user) {
       res.status(404).json({
-        type: "error",
-        message: "User not found",
+        meta: {
+          type: "error",
+        },
+        data: {
+          message: "User not found",
+        },
       });
     }
-    res.status(200).json({ type: "success", user });
+    res.status(200).json({
+      meta: {
+        type: "success",
+      },
+      data: {
+        user,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ type: "error", message: "Something went wrong" });
+    res.status(500).json({
+      meta: {
+        type: "error",
+      },
+      message: "Something went wrong",
+    });
   }
 }

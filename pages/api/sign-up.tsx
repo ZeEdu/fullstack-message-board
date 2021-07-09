@@ -1,23 +1,40 @@
 import { ObjectId } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
+import NextCors from "nextjs-cors";
+
 import { getUser, saveUser } from "../../dao/users";
 import { User } from "../../interfaces/User.interface";
-import initMiddleware from "../../services/initMiddleware.js";
-import Cors from "cors";
-
-const cors = initMiddleware(Cors({ methods: ["POST"] }));
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  await cors(req, res);
+  try {
+    await NextCors(req, res, {
+      // Options
+      methods: ["POST"],
+      origin: "*",
+      optionsSuccessStatus: 200,
+    });
+  } catch (error) {
+    res.status(404).json({
+      type: "error",
+      message: "Method Not Allowed",
+    });
+  }
 
   const { method } = req;
 
   if (method !== "POST") {
     res.setHeader("Allow", ["POST"]);
-    res.status(405).end(`Method ${method} Not Allowed`);
+    res.status(405).json({
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: `Method ${method} Not Allowed`,
+      },
+    });
   }
 
   const { username, email, password } = req.body;

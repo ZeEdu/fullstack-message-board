@@ -1,32 +1,56 @@
 import Jwt from "jsonwebtoken";
+import { NextApiRequest, NextApiResponse } from "next";
+import NextCors from "nextjs-cors";
+
 import { User } from "../../interfaces/User.interface";
 import { getUserWithPassword } from "../../dao/users";
 import { createSession, deleteSession, getSession } from "../../dao/session";
-import { NextApiRequest, NextApiResponse } from "next";
-import initMiddleware from "../../services/initMiddleware.js";
-import Cors from "cors";
-
-const cors = initMiddleware(Cors({ methods: ["POST"] }));
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  await cors(req, res);
+  try {
+    await NextCors(req, res, {
+      methods: ["POST"],
+      origin: "*",
+      optionsSuccessStatus: 200,
+    });
+  } catch (error) {
+    res.status(404).json({
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: "Method Not Allowed",
+      },
+    });
+  }
 
   const { method } = req;
 
   if (method !== "POST") {
     res.setHeader("Allow", ["POST"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return res.status(405).json({
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: `Method ${method} Not Allowed`,
+      },
+    });
   }
 
   const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({
-      type: "error",
-      message: "Request must have  email and password",
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: "Request must have  email and password",
+      },
     });
   }
 
@@ -35,15 +59,23 @@ export default async function handler(
 
     if (!user) {
       return res.status(400).json({
-        type: "error",
-        message: "Email not found",
+        meta: {
+          type: "error",
+        },
+        data: {
+          message: "Email not found",
+        },
       });
     }
 
     if (password !== user.password) {
       return res.status(400).json({
-        type: "error",
-        message: "Invalid Credentials",
+        meta: {
+          type: "error",
+        },
+        data: {
+          message: "Invalid Credentials",
+        },
       });
     }
 
@@ -60,14 +92,23 @@ export default async function handler(
 
       if (!createdSession.success) {
         return res.status(500).json({
-          type: "error",
-          message: "Faild to create user session",
+          meta: {
+            type: "error",
+          },
+          data: {
+            message: "Failed to create user session",
+          },
         });
       }
 
       return res.status(202).json({
-        user: user,
-        token: token,
+        meta: {
+          type: "success",
+        },
+        data: {
+          user,
+          token,
+        },
       });
     }
 
@@ -91,18 +132,34 @@ export default async function handler(
 
       if (!createdSession) {
         return res.status(500).json({
-          type: "error",
-          message: "Faild to create user session",
+          meta: {
+            type: "error",
+          },
+          data: {
+            message: "Faild to create user session",
+          },
         });
       }
 
       return res.status(202).json({
-        user: user,
-        token: token,
+        meta: {
+          type: "error",
+        },
+        data: {
+          user,
+          token,
+        },
       });
     }
   } catch (error) {
     // console.error(error);
-    res.status(500).json({ type: "error", message: "Internal Error" });
+    res.status(500).json({
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: "Internal Error",
+      },
+    });
   }
 }

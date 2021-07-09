@@ -1,32 +1,57 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import NextCors from "nextjs-cors";
+
 import { deleteSession, getSession } from "../../dao/session";
 import { getUser } from "../../dao/users";
 import { Session } from "../../interfaces/Session.interface";
 import { User } from "../../interfaces/User.interface";
-import initMiddleware from "../../services/initMiddleware.js";
-import Cors from "cors";
-
-const cors = initMiddleware(Cors({ methods: ["POST"] }));
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  await cors(req, res);
+  try {
+    await NextCors(req, res, {
+      // Options
+      methods: ["POST"],
+      origin: "*",
+      optionsSuccessStatus: 200,
+    });
+  } catch (error) {
+    res.status(404).json({
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: "Method Not Allowed",
+      },
+    });
+  }
 
   const { method } = req;
 
   if (method !== "POST") {
     res.setHeader("Allow", ["POST"]);
-    return res.status(405).end(`Method ${method} Not Allowed`);
+    return res.status(405).json({
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: `Method ${method} Not Allowed`,
+      },
+    });
   }
 
   const { email } = req.body;
 
   if (!email) {
     return res.status(400).json({
-      type: "error",
-      message: "Request must have a email ",
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: "Request must have a email ",
+      },
     });
   }
 
@@ -34,7 +59,12 @@ export default async function handler(
 
   if (!bearer) {
     return res.status(400).json({
-      message: "No authentication informed",
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: "No authentication informed",
+      },
     });
   }
 
@@ -44,23 +74,43 @@ export default async function handler(
     const userByEmail: User = await getUser("email", email);
     if (!userByEmail) {
       return res.status(400).json({
-        type: "error",
-        message: "Email not found",
+        meta: {
+          type: "error",
+        },
+        data: {
+          message: "Email not found",
+        },
       });
     }
     const session: Session = await getSession("email", email);
     if (userByEmail.email !== session.email) {
       return res.status(401).json({
-        type: "error",
-        message: "Session and email informed do not match",
+        meta: {
+          type: "error",
+        },
+        data: {
+          message: "Session and email informed do not match",
+        },
       });
     }
     await deleteSession(email, token);
-    return res
-      .status(200)
-      .json({ type: "success", message: "deleted user session" });
+    return res.status(200).json({
+      meta: {
+        type: "success",
+      },
+      data: {
+        message: "Deleted user session",
+      },
+    });
   } catch (error) {
     // console.error(error);
-    return res.status(500).json({ type: "error", message: "Internal Error" });
+    return res.status(500).json({
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: "Internal Error",
+      },
+    });
   }
 }

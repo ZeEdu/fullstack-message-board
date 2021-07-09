@@ -1,25 +1,40 @@
 import { ObjectId } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
+import NextCors from "nextjs-cors";
+
 import { getMessage, updateMessage } from "../../../../dao/messages";
-
 import { Message } from "../../../../interfaces/Message.interface";
-
-import Cors from "cors";
-import initMiddleware from "../../../../services/initMiddleware";
-
-const cors = initMiddleware(Cors({ methods: ["PUT"] }));
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  await cors(req, res);
+  try {
+    await NextCors(req, res, {
+      // Options
+      methods: ["PUT"],
+      origin: "*",
+      optionsSuccessStatus: 200,
+    });
+  } catch (error) {
+    res.status(404).json({
+      type: "error",
+      message: "Method Not Allowed",
+    });
+  }
 
   const { method } = req;
 
   if (method !== "PUT") {
     res.setHeader("Allow", ["PUT"]);
-    res.status(405).end(`Method ${method} Not Allowed`);
+    res.status(405).json({
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: `Method ${method} Not Allowed`,
+      },
+    });
   }
 
   const { user_id, post_id } = req.body;
@@ -45,7 +60,10 @@ export default async function handler(
     // Já existe dentro?
     const checkInside = message.likes.includes(user_id);
     if (!checkInside) {
-      return res.status(400).json({ message: "User didn't liked the post" });
+      return res.status(400).json({
+        meta: { type: "error" },
+        data: { message: "User didn't liked the post" },
+      });
     }
     // Retira o id do usuário dentro de likes
     const updatedLikes = message.likes.filter((id) => id !== user_id);
@@ -62,11 +80,25 @@ export default async function handler(
       updatedMessage
     );
     if (!updateResult.success) {
-      return res.status(500).json({ message: "Internal Error" });
+      return res.status(500).json({
+        meta: { type: "error" },
+        data: {
+          message: "Internal Error",
+        },
+      });
     }
-    return res.status(200).json({ result: updatedMessage });
+    return res
+      .status(200)
+      .json({ meta: { type: "success" }, data: updatedMessage });
   } catch (error) {
     // console.error(error);
-    return res.status(500).json({ type: "error", message: error });
+    return res.status(500).json({
+      meta: {
+        type: "error",
+      },
+      data: {
+        message: error,
+      },
+    });
   }
 }
