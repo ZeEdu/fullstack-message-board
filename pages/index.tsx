@@ -1,7 +1,6 @@
-import React, { FC, useContext, useState } from "react";
+import React, { FC, useContext } from "react";
 
 import { AuthContext } from "../contexts/AuthContext";
-import { api } from "../services/api";
 import Layout from "../components/Layout";
 import MessageList from "../components/MessageList";
 import MessageForm from "../components/MessageForm";

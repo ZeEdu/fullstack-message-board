@@ -40,14 +40,10 @@ const SignIn = () => {
   const onSubmit = async (formValues: FormValuesType) => {
     const { email, password } = formValues;
     setError("");
-    try {
-      await signIn(email, password);
-      // if (res.success === false) {
-      //   setError(res.error.response.data.message);
-      // }
-    } catch (err) {
-      // console.error(err);
-      setError(err);
+
+    const { data, error, success } = await signIn(email, password);
+    if (!success) {
+      setError(error.request.data.message);
     }
   };
 

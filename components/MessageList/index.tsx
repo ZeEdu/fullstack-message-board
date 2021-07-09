@@ -25,10 +25,10 @@ const Index: FC<MessageListProps> = ({ user, initialMessages, isAuth }) => {
     try {
       setLoading(true);
       const {
-        data: { result },
+        data: { data },
       } = await api.get(url);
-      setPagePosts((curr) => [...curr, ...result]);
-      if (result.length < 10) {
+      setPagePosts((curr) => [...curr, ...(data as Message[])]);
+      if (data.length < 10) {
         setEnd(true);
       }
       page = page + 1;
