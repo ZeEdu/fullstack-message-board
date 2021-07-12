@@ -55,9 +55,9 @@ export function AuthProvider({ children }) {
       if (!token) return;
       try {
         const { data } = await api.get("/user");
-
         setUser(data.data.user as User);
       } catch (error) {
+        setUser(null);
         // console.log("No user found");
       }
     };
