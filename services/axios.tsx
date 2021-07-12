@@ -1,29 +1,13 @@
 import axios from "axios";
 import { parseCookies } from "nookies";
-import parseStringToBoolean from "../utils/parseStringToBoolean";
 
 export function GetApiClient(ctx?) {
   const { ["messageboard.token"]: token } = parseCookies(ctx);
-  const productionEnv = process.env.PRODUCTION;
-  const prodUrl = "http://fullstack-message-board-nextjs.herokuapp.com/api";
-  const localUrl = "http://localhost:3000/api";
-  let apiUrl: string;
-  console.log("production?", parseStringToBoolean(productionEnv));
-  try {
-    if (parseStringToBoolean(productionEnv)) apiUrl = prodUrl;
-    else apiUrl = localUrl;
-  } catch (error) {
-    apiUrl = localUrl;
-  }
+  const apiUrl: string = process.env.NEXT_PUBLIC_API;
 
   const api = axios.create({
     baseURL: apiUrl,
   });
-
-  // api.interceptors.request.use((config) => {
-  //   console.log(config);
-  //   return config;
-  // });
 
   if (token) {
     api.defaults.headers["Authorization"] = `Bearer ${token}`;
