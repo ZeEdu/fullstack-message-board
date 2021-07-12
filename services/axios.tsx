@@ -8,10 +8,10 @@ export function GetApiClient(ctx?) {
   const prodUrl = "http://fullstack-message-board-nextjs.herokuapp.com/api";
   const localUrl = "http://localhost:3000/api";
   let apiUrl: string;
-
+  console.log("production?", parseStringToBoolean(productionEnv));
   try {
-    console.log("production?", parseStringToBoolean(productionEnv));
-    apiUrl = parseStringToBoolean(productionEnv) ? prodUrl : localUrl;
+    if (parseStringToBoolean(productionEnv)) apiUrl = prodUrl;
+    else apiUrl = localUrl;
   } catch (error) {
     apiUrl = localUrl;
   }
